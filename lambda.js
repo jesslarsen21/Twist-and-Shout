@@ -30,10 +30,9 @@ const handlers = {
         else{
             //spController.setToken(this.event.session.user.accessToken);
         }
-        this.emit('WhatsUp');
+        this.emit('StartGame');
     },
     'WhatsUp': function () {
-        
         this.emit(':tell', 'Hello World.');
     },
     'StartGame': function () {
@@ -47,14 +46,17 @@ const handlers = {
         dbController.UpdatePlaylist(id, URL, artistName);
         //update current song in user
         dbController.updateCurrentArtist(id, artistName);
-
         //id is forsure in the db
         this.response.audioPlayerPlay('REPLACE_ALL', URL, '1234', null, 0);
         this.emit(':responseReady');
     },
+
+
+    
     'VerifyAnswer': function () {
+        var id = this.event.session.user.userId;
         var userGuess = this.event.request.intent.slots.Guess.value;
-        GetCurrentArtist("John").on('success', function(response) {
+        dbController.GetCurrentArtist(id).on('success', function(response) {
             var artist = response.data.Items[0].CurrentArtist;
             if(artist.toUpperCase() == userGuess.toUpperCase())
             {

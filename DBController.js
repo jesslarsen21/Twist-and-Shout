@@ -1,17 +1,15 @@
-
+const AWS = require('aws-sdk');
 var region = "us-east-1";
 var accessKeyId = 'AKIAIQN4JAX4WKKW7RIQ';
 var secretAccessKey = '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';
 
-
-var docClient = new AWS.DynamoDB.DocumentClient({
+docClient = new AWS.DynamoDB.DocumentClient({
     region: region,
     accessKeyId: accessKeyId,
     secretAccessKey: secretAccessKey,
-});
+}),
 
 module.exports = {
-    
     GetPlaylist : function(user){
         var songs = [];
         var params = {
@@ -46,6 +44,22 @@ module.exports = {
             },
             ExpressionAttributeValues: {
             ':url' : URL
+            }
+        };
+        docClient.update(params, function(err, data) {
+            if (err) console.log(err);
+            else console.log("Query succeeded.");
+        });     
+    },
+
+   DeleteSongFromPlaylist : function(id, ARTIST){
+        var params = {
+            TableName: 'Playlist',
+            Key: { UserID : id },
+            UpdateExpression: 'REMOVE #songs.#artist',            
+            ExpressionAttributeNames: {
+                '#songs' : 'Songs',
+                '#artist' : ARTIST
             }
         };
         docClient.update(params, function(err, data) {
