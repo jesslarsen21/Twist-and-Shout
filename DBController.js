@@ -7,7 +7,25 @@ docClient = new AWS.DynamoDB.DocumentClient({
     region: region,
     accessKeyId: accessKeyId,
     secretAccessKey: secretAccessKey,
-}),
+})
+
+function newUser(id){
+    var params = {
+        TableName : "Playlist",
+        Item: {
+            'UserID': id,
+            'Score': 0,
+            'CurrentArtist': null
+        }
+    };
+    return docClient.put(params, function(err, data) {
+        if (err) {
+        console.log("Error", err);
+        } else {
+            console.log("Query succeeded.");
+        }
+    });
+}
 
 module.exports = {
     GetPlaylist : function(user){
@@ -46,7 +64,7 @@ module.exports = {
             ':url' : URL
             }
         };
-        docClient.update(params, function(err, data) {
+        return docClient.update(params, function(err, data) {
             if (err) console.log(err);
             else console.log("Query succeeded.");
         });     
@@ -62,7 +80,7 @@ module.exports = {
                 '#artist' : ARTIST
             }
         };
-        docClient.update(params, function(err, data) {
+        return docClient.update(params, function(err, data) {
             if (err) console.log(err);
             else console.log("Query succeeded.");
         });     
@@ -76,7 +94,7 @@ module.exports = {
                 'Songs' : {}
             }
         };
-        docClient.put(params, function(err, data) {
+       return docClient.put(params, function(err, data) {
             if (err) {
                 console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
             } else {
@@ -85,41 +103,7 @@ module.exports = {
         });  
     },
 
-    newUserItem : function(id){
-        var params = {
-            TableName : "Playlist",
-            Item: {
-                'UserID': id,
-                'Score': 0,
-                'CurrentArtist': null
-            }
-        };
-        docClient.put(params, function(err, data) {
-            if (err) {
-            console.log("Error", err);
-            } else {
-                console.log("Query succeeded.");
-            }
-        });
-    },
 
-    newUserItem : function(id){
-        var params = {
-            TableName : "Users",
-            Item: {
-                'UserID': id,
-                'Score': 0,
-                'CurrentArtist': null
-            }
-        };
-        docClient.put(params, function(err, data) {
-            if (err) {
-            console.log("Error", err);
-            } else {
-                console.log("Query succeeded.");
-            }
-        });
-    },
 
     updateScore : function(id, score){
         var params = {
@@ -131,11 +115,12 @@ module.exports = {
             ':x' : score,
             }
         };
-        docClient.update(params, function(err, data) {
+        return docClient.update(params, function(err, data) {
             if (err) console.log(err);
             else console.log("Query succeeded.");
         });
     },
+
 
     updateCurrentArtist : function(id, name){
         var params = {
@@ -147,7 +132,7 @@ module.exports = {
             ':x' : name,
             }
         };
-        docClient.update(params, function(err, data) {
+        return docClient.update(params, function(err, data) {
             if (err) console.log(err);
             else console.log("Query succeeded.");
         });
@@ -167,7 +152,7 @@ module.exports = {
             }
         };
         
-        docClient.query(params, function(err, data) {
+        return docClient.query(params, function(err, data) {
             if (err) {
                 console.log(err);
             } else {
@@ -175,8 +160,21 @@ module.exports = {
                 if (data.Count == 0)
                 {
                     console.log("That User was not found. I will add one.");
-                    newUserItem(user);
-                    d = true;
+                    var params = {
+                        TableName : "Users",
+                        Item: {
+                            'UserID': user,
+                            'Score': 0,
+                            'CurrentArtist': null
+                        }
+                    };
+                    return docClient.put(params, function(err, data) {
+                        if (err) {
+                        console.log("Error", err);
+                        } else {
+                            console.log("Query succeeded.");
+                        }
+                    });
                 }
                 d = true;
             }
@@ -210,20 +208,3 @@ module.exports = {
         });
     },
 }
-/* 
-GetPlayList Example:
-GetPlaylist("John").on('success', function(response) {
-    console.log(response.data.Items[0].Songs);
-  });
-
-GetCurrentArtist Example:
-GetCurrentArtist("John").on('success', function(response) {
-    console.log(response.data.Items[0].CurrentArtist);
-  });
-
-update examples:
-newUserItem("Test");
-updateScore("John", 10);
-updateCurrentArtist("John", "Testing");
-NewPlaylist("PLEASEAGAIN");
-*/

@@ -39,16 +39,24 @@ const handlers = {
         var id = this.event.session.user.userId
         var URL = 'https://p.scdn.co/mp3-preview/4839b070015ab7d6de9fec1756e1f3096d908fba';
         var artistName = 'The Killers';
-        dbController.GetUser(id);
-        dbController.NewPlaylist(id);
-        //do work to get songs
-        //add songs to playlist
-        dbController.UpdatePlaylist(id, URL, artistName);
-        //update current song in user
-        dbController.updateCurrentArtist(id, artistName);
-        //id is forsure in the db
-        this.response.audioPlayerPlay('REPLACE_ALL', URL, '1234', null, 0);
-        this.emit(':responseReady');
+        var cont = false;
+        var p1 = dbController.GetUser(id).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+            console.log('Something went wrong!', err);
+        });
+        var p2 = dbController.NewPlaylist(id).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+            console.log('Something went wrong!', err);
+        });
+        var p3 = dbController.UpdatePlaylist(id, URL, artistName).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+            console.log('Something went wrong!', err);
+        });
+        var p4 = dbController.updateCurrentArtist(id, artistName).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+            console.log('Something went wrong!', err);
+        });
+                        
+        Promise.all([p1, p2, p3, p4]).then(function () {
+            this.response.audioPlayerPlay('REPLACE_ALL', URL, '1234', null, 0);
+            this.emit(':responseReady');
+          }.bind(this));
     },
 
 
@@ -56,8 +64,8 @@ const handlers = {
     'VerifyAnswer': function () {
         var id = this.event.session.user.userId;
         var userGuess = this.event.request.intent.slots.Guess.value;
-        dbController.GetCurrentArtist(id).on('success', function(response) {
-            var artist = response.data.Items[0].CurrentArtist;
+        var p1 = dbController.GetCurrentArtist(id).promise().then(function(response) {
+            var artist = response.Items[0].CurrentArtist;
             if(artist.toUpperCase() == userGuess.toUpperCase())
             {
                 this.response.audioPlayerStop();
@@ -65,7 +73,7 @@ const handlers = {
                 this.emit(':responseReady');
             }
             this.emit(':tell', userGuess);
-        });
+        }.bind(this));
     },
     'AMAZON.HelpIntent': function () {
         const speechOutput = this.t('HELP_MESSAGE');
