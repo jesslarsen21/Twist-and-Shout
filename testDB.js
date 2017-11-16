@@ -1,17 +1,21 @@
 const AWS = require('aws-sdk');
 var dbController = require('./DBController');
-/* 
-var p1 = dbController.UpdatePlaylist("John", "URL", "artistName").promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
-    console.log('Something went wrong!', err);
-}); 
-var p2 = dbController.GetPlaylist("John").promise().then(function(data) {
+var spController = require('./spotifyController');
+
+
+var p2 = dbController.GetPlaylist("amzn1.ask.account.AF3QFMQTA5YT6AOCVRFPZWTQQ3EZ6UCJK42SVMUEPRS3MIEDH4DE52RWBMWOONO2XXXXJZUHVJSZLIISU2IZEQSU7UZNI2P2WNU6D2GQBS6TADYXA7YMB2MU7ZMRTBWZ23VJMRWQ2WTRUWUMQWTPORIE5QJYP33ZIXHHIZPGBFLCM5F66KMKAUFRVK2XSD3GYSJORG2EDL7RFQY").promise().then(function(data) {
     console.log("IN PROMISE")
-    return Object.keys(data.Items[0].Songs);
+    //return Object.keys(data.Items[0].Songs);
+    return data.Items[0].Songs;
 }).catch(function(err) {
     console.log('Something went wrong!', err);
 });
-  */
-    dbController.DeleteSongFromPlaylist("amzn1.ask.account.AF3QFMQTA5YT6AOCVRFPZWTQQ3EZ6UCJK42SVMUEPRS3MIEDH4DE52RWBMWOONO2XXXXJZUHVJSZLIISU2IZEQSU7UZNI2P2WNU6D2GQBS6TADYXA7YMB2MU7ZMRTBWZ23VJMRWQ2WTRUWUMQWTPORIE5QJYP33ZIXHHIZPGBFLCM5F66KMKAUFRVK2XSD3GYSJORG2EDL7RFQY", "please");
+
+Promise.all([p2]).then(function (data) {
+    console.log(data[0]);
+});
+
+    //dbController.DeleteSongFromPlaylist("amzn1.ask.account.AF3QFMQTA5YT6AOCVRFPZWTQQ3EZ6UCJK42SVMUEPRS3MIEDH4DE52RWBMWOONO2XXXXJZUHVJSZLIISU2IZEQSU7UZNI2P2WNU6D2GQBS6TADYXA7YMB2MU7ZMRTBWZ23VJMRWQ2WTRUWUMQWTPORIE5QJYP33ZIXHHIZPGBFLCM5F66KMKAUFRVK2XSD3GYSJORG2EDL7RFQY", "please");
 
 /* 'AnotherSong': function(){
     var id = this.event.session.user.userId;

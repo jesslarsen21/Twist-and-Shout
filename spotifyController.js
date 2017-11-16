@@ -17,46 +17,44 @@ var spotifyApi = new SpotifyWebApi({
     clientId : 'd340e4d2734740b9860e1b52e7a06376',
     clientSecret : '805e13df0d6346f0af1e0f57b4aac2d3',
 });
-module.exports = {
-    getSongs : function(data) {
-        var songs = data.body.tracks.items;
-        var allSongs = [];
-        
-        songs.forEach(function(song) {
-            if (song.track.preview_url){
-                art = song.track.artists[0].name.replace('\\', '');
-                art = art.replace('"', '');
-                art = art.replace('&', 'and');
-                art = art.replace('\'', '');
 
-                son = song.track.name.replace('\\', '');
-                son = son.replace('"', '');
-                son = son.replace('\'', '');
-                allSongs.push({
-                    artist:  art,
-                    song: son,
-                    url: song.track.preview_url
-                });
+function getSongs(data) {
+    var songs = data.body.tracks.items;
+    var allSongs = [];
+    
+    songs.forEach(function(song) {
+        if (song.track.preview_url){
+            art = song.track.artists[0].name.replace('\\', '');
+            art = art.replace('"', '');
+            art = art.replace('&', 'and');
+            art = art.replace('\'', '');
+            art = art.replace('.', '');
+            art = art.replace(',', '');
+            son = song.track.name.replace('\\', '');
+            son = son.replace('"', '');
+            son = son.replace('\'', '');
+            if (art == "Daryl Hall and John Oates")
+            {
+                art = "Hall and Oates";
             }
-        });
-        return allSongs;
-    },
-
+            allSongs.push({
+                artist:  art,
+                song: son,
+                url: song.track.preview_url
+            });
+        }
+    });
+    return allSongs;
+}
+module.exports = {
     // Retrieve an access token
     getSongsFromRandomFeaturedPlaylist: function()
     {
         return spotifyApi.clientCredentialsGrant().then(function(data) {
-    
-        // Set the access token on the API object so that it's used in all future requests
-            spotifyApi.setAccessToken('BQDjv4tQmUyfBw0duxHjyfqLlkQOQ7OKQWCUTlsABPpAIuBMkzh7ThP93KQRR55StyWuq1ohYxS6Fnevn9UQJtjPHQ2fXCjeYfb8FoFD5e3_eTnfEByFlWTERlawzfrOzxyna76ew7I');
-    
-        // Get the most popular tracks by David Bowie in Great Britain
             return spotifyApi.getFeaturedPlaylists().then(function(data) {
                 var firstPage = data.body.playlists
-            
-            //console.log(firstPage);
                 id = '';
-                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[3].id).then(function(data){
+                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[6].id).then(function(data){
                 //console.log(data);
                     var songs =  getSongs(data);
                     //console.log(songs);

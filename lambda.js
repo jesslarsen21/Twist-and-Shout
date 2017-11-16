@@ -1,6 +1,6 @@
 const Alexa = require('alexa-sdk');
 const AWS = require('aws-sdk');
-//var spController = require('./spotifyController');
+var spController = require('./spotifyController');
 var dbController = require('./DBController');
 //var SpotifyWebApi = require('spotify-web-api-node');
 
@@ -18,8 +18,6 @@ var docClient = new AWS.DynamoDB.DocumentClient({
   secretAccessKey: secretAccessKey,
 });
 
-//spController.setToken('hello');
-
 const handlers = {
     'LaunchRequest': function () {
         if( !(this.event.session.user.accessToken))
@@ -28,7 +26,7 @@ const handlers = {
                        'to start using this skill, please use the companion app to authenticate on Amazon');
         }
         else{
-            //spController.setToken(this.event.session.user.accessToken);
+            spController.setToken(this.event.session.user.accessToken);
         }
         this.emit('StartGame');
     },
@@ -36,31 +34,59 @@ const handlers = {
         this.emit(':tell', 'Hello World.');
     },
     'StartGame': function () {
+        //spController.setToken(this.event.session.user.accessToken);
         var id = this.event.session.user.userId
-        var URL = 'https://p.scdn.co/mp3-preview/4839b070015ab7d6de9fec1756e1f3096d908fba';
-        var artistName = 'The Killers';
         var cont = false;
+
         var p1 = dbController.GetUser(id).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
             console.log('Something went wrong!', err);
         });
         var p2 = dbController.NewPlaylist(id).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
             console.log('Something went wrong!', err);
         });
-        var p3 = dbController.UpdatePlaylist(id, URL, artistName).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+        spController.setToken(this.event.session.user.accessToken)
+        spController.getSongsFromRandomFeaturedPlaylist().then(function(data){
+            data.forEach(function(song)
+            {
+                dbController.UpdatePlaylist(id,song.url, song.artist);
+            });
+            Promise.all([p1, p2]).then(function () {
+                this.emit('NewSong');
+              }.bind(this));
+        }.bind(this)).catch(function(){
+            console.log("error");
+        });
+        
+
+        },
+    'NewSong': function () {
+        var id = this.event.session.user.userId
+        var p1 = dbController.GetPlaylist(id).promise().then(function(data) {
+            console.log("IN PROMISE"); 
+            console.log(data.Items[0].Songs);
+            return data.Items[0].Songs;
+        }).catch(function(err) {
             console.log('Something went wrong!', err);
         });
-        var p4 = dbController.updateCurrentArtist(id, artistName).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+        var p2 = dbController.GetUser(id).promise().then(function(data) {console.log("IN PROMISE"); return true}).catch(function(err) {
             console.log('Something went wrong!', err);
         });
-                        
-        Promise.all([p1, p2, p3, p4]).then(function () {
-            this.response.audioPlayerPlay('REPLACE_ALL', URL, '1234', null, 0);
-            this.emit(':responseReady');
-          }.bind(this));
+                            
+        Promise.all([p1, p2]).then(function (data) {
+            var songs = data[0];
+            var keys = Object.keys(songs);
+            var artistName = keys[ keys.length * Math.random() << 0]
+            var URL = songs[artistName];
+            var p1 = dbController.DeleteSongFromPlaylist(id, artistName);
+            var p2 = dbController.updateCurrentArtist(id, artistName).promise().then(function(data) {console.log("IN PROMISE"); return true;}).catch(function(err) {
+                console.log("in promise");
+            });
+            Promise.all([p1,p2]).then(function (){
+                this.response.audioPlayerPlay('REPLACE_ALL', URL, '1234', null, 0);
+                this.emit(':responseReady');
+            }.bind(this));
+        }.bind(this));
     },
-
-
-    
     'VerifyAnswer': function () {
         var id = this.event.session.user.userId;
         var userGuess = this.event.request.intent.slots.Guess.value;
@@ -69,7 +95,17 @@ const handlers = {
             if(artist.toUpperCase() == userGuess.toUpperCase())
             {
                 this.response.audioPlayerStop();
-                this.response.speak('You got it!');
+                this.emit(':responseReady');               
+            }
+            else 
+            {
+                this.response.speak('Try Again!');
+                var card = {
+                    type: 'Simple',
+                    title: 'What I heard:',
+                    content: userGuess
+                  };
+                this.response.card = card; 
                 this.emit(':responseReady');
             }
             this.emit(':tell', userGuess);
