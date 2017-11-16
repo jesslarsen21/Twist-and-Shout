@@ -107,6 +107,7 @@ const handlers = {
                   };
                 this.response.card = card; 
                 this.emit(':responseReady');
+                
             }
             this.emit(':tell', userGuess);
         }.bind(this));
