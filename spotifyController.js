@@ -71,7 +71,26 @@ module.exports = {
         });
         
     },
+    // Gets a list of the users playlists.
+    getListOfCurrentUsersPlaylists : function()
+    {
+        return spotifyApi.clientCredentialsGrant().then(function(data) 
+        {
+            setToken(data.body['access_token']);
+            // Okay I need playlists name from the user. 
+            return spotifyApi.getUserPlaylist('').then(function (data)
+            {
 
+            }).catch(function(err) 
+            {
+                console.log('Issue with getting user playlists', err);
+            });
+        }).catch( function(err) 
+        {
+            console.log('Client credential error!', err);
+        });
+        
+    },
 
     setToken: function (token) {
         console.log(token);
