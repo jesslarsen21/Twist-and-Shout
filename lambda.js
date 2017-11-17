@@ -60,16 +60,22 @@ const handlers = {
 
         },
     'CreateGame': function () {
-        if (this.event.request.dialogState === "STARTED") {
-            //optionally pre-fill slots: update the intent object with slot values for which
-            //you have defaults, then return Dialog.Delegate with this updated intent
-            //in the updatedIntent property
-            this.emit(":delegate");
-        } else if (this.event.request.dialogState !== "COMPLETED") {
-            // return a Dialog.Delegate directive with no updatedIntent property.
-            this.emit(":delegate");
+        var intentObj = this.event.request.intent;
+        if(!this.event.session.user.accessToken && !intentObj.slots.LinkedAccount.value)
+        {
+            this.emit(":elicitSlot", "LinkedAccount", "Would you like to link your spotify account, to play with your own playlists?", "Would you like to link your spotify account, to play with your own playlists?");            
+        } else if (intentObj.slots.LinkedAccount.value) {
+            if (intentObj.slots.LinkedAccount.value.toUpperCase() == "YES") {
+                this.emit(':tellWithLinkAccountCard',
+                'Okay! Go to your app, and link your spotify account. Once you have done that, start a game again!');
+            }
+            else{
+                // prompt for ask me never option 
+            }
+        } else if (!intentObj.slots.PlayerName.value) {
+            this.emit(":elicitSlot", "PlayerName", "Who's playing?", "Who's playing?");
         } else {
-            console.log("in completed");
+            console.log(intentObj.slots.PlayerName.value);
             this.emit("StartGame");
         }
     },
