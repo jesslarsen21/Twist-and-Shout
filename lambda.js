@@ -59,6 +59,20 @@ const handlers = {
         
 
         },
+    'CreateGame': function () {
+        if (this.event.request.dialogState === "STARTED") {
+            //optionally pre-fill slots: update the intent object with slot values for which
+            //you have defaults, then return Dialog.Delegate with this updated intent
+            //in the updatedIntent property
+            this.emit(":delegate");
+        } else if (this.event.request.dialogState !== "COMPLETED") {
+            // return a Dialog.Delegate directive with no updatedIntent property.
+            this.emit(":delegate");
+        } else {
+            console.log("in completed");
+            this.emit("StartGame");
+        }
+    },
     'NewSong': function () {
         var id = this.event.session.user.userId
         var p1 = dbController.GetPlaylist(id).promise().then(function(data) {
@@ -95,19 +109,13 @@ const handlers = {
             if(artist.toUpperCase() == userGuess.toUpperCase())
             {
                 this.response.audioPlayerStop();
+                this.response.speak('You got it!');
                 this.emit(':responseReady');               
             }
             else 
             {
-                this.response.speak('Try Again!');
-                var card = {
-                    type: 'Simple',
-                    title: 'What I heard:',
-                    content: userGuess
-                  };
-                this.response.card = card; 
-                this.emit(':responseReady');
-                
+                this.emit(':tellWithCard', "Try Again!", "What I heard you say:", userGuess);
+
             }
             this.emit(':tell', userGuess);
         }.bind(this));

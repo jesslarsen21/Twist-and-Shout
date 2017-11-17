@@ -46,6 +46,36 @@ function getSongs(data) {
     });
     return allSongs;
 }
+
+function getPlaylists(data) {
+    var songs = data.body.tracks.items;
+    var allSongs = [];
+    
+    songs.forEach(function(song) {
+        if (song.track.preview_url){
+            art = song.track.artists[0].name.replace('\\', '');
+            art = art.replace('"', '');
+            art = art.replace('&', 'and');
+            art = art.replace('\'', '');
+            art = art.replace('.', '');
+            art = art.replace(',', '');
+            son = song.track.name.replace('\\', '');
+            son = son.replace('"', '');
+            son = son.replace('\'', '');
+            if (art == "Daryl Hall and John Oates")
+            {
+                art = "Hall and Oates";
+            }
+            allSongs.push({
+                artist:  art,
+                song: son,
+                url: song.track.preview_url
+            });
+        }
+    });
+    return allSongs;
+}
+
 module.exports = {
     // Retrieve an access token
     getSongsFromRandomFeaturedPlaylist: function()
@@ -54,7 +84,7 @@ module.exports = {
             return spotifyApi.getFeaturedPlaylists().then(function(data) {
                 var firstPage = data.body.playlists
                 id = '';
-                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[6].id).then(function(data){
+                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[2].id).then(function(data){
                 //console.log(data);
                     var songs =  getSongs(data);
                     //console.log(songs);
@@ -74,26 +104,25 @@ module.exports = {
     // Gets a list of the users playlists.
     getListOfCurrentUsersPlaylists : function()
     {
-        return spotifyApi.clientCredentialsGrant().then(function(data) 
-        {
-            setToken(data.body['access_token']);
-            // Okay I need playlists name from the user. 
-            return spotifyApi.getUserPlaylist('').then(function (data)
-            {
-
-            }).catch(function(err) 
-            {
-                console.log('Issue with getting user playlists', err);
+        return spotifyApi.clientCredentialsGrant().then(function(data) {
+            return spotifyApi.getMe().then(function(data) {
+                var id = data.body.id;
+                return spotifyApi.getUserPlaylists(id).then(function(data){
+                        console.log(data.body.items);
+                        
+                    }).catch( function(err) {
+                        console.log('Somthing went wrong!', err);
+                    });
+            }).catch(function(err) {
+                console.log('Something went wrong!', err);
             });
-        }).catch( function(err) 
-        {
-            console.log('Client credential error!', err);
+        }).catch( function(err) {
+            console.log('Something went wrong!', err);
         });
         
     },
 
     setToken: function (token) {
-        console.log(token);
         spotifyApi.setAccessToken(token);
     }
 
