@@ -2,8 +2,9 @@ const AWS = require('aws-sdk');
 var dbController = require('./DBController');
 var spController = require('./spotifyController');
 
-spController.setToken("BQB0GO4e8C4AfVEyFnId0ZO-KYVo8DaZpcjc1n5oddFRsiS1C_2qBG4VsqLuL5eFzpkcytE7TDY4jrwp-O1bV_MGZjtZ7cVM3t1Y5NugXdMI6-ifbDwu9ikLNCCPcCB81On6iCp2ALVd9BGvucz3y-Yr9Exv");
-spController.getListOfCurrentUsersPlaylists();
+spController.setToken("BQAqlmxDv5UkE62BjMAqAfx1nEuQ3is9jypgcQ7ylEnFsIWJ3pZYFjJw58aUBG6pTFj9SZ7P5GEasx0YUQ7dPM0LijfmOLBGyk1srL5q5MRw6-ibeaosrAH7kP5qj1EFOpYI1Yrz2WLum2w");
+//spController.getPlaylistsForCategoryFromUserInput('hiphop');
+spController.getArtistsTopTracks('sweater beats');
 
 
 

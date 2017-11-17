@@ -47,7 +47,15 @@ function getSongs(data) {
 }
 
 function getPlaylists(data) {
-    var playlists = data.body.items;
+    var playlists
+    if (data.body.playlists)
+    {
+        playlists = data.body.playlists.items
+    }
+    else
+    {
+        playlists = data.body.items;
+    }
     var allPlaylists = [];
 
     playlists.forEach(function (playlist) {
@@ -58,6 +66,7 @@ function getPlaylists(data) {
         listName = listName.replace('.', '');
         listName = listName.replace(',', '');
         listName = listName.replace(' – ', ' ');
+        listName = listName.replace('-', '');
         listName = listName.replace('This Is: ', '');
         playlistId = playlist.id;
         allPlaylists.push(
@@ -67,6 +76,29 @@ function getPlaylists(data) {
             });
     });
     return allPlaylists;
+}
+
+function getArtistsTopTracks(data) {
+    var songs = data.body.tracks;
+    var allSongs = [];
+
+    songs.forEach(function (song) {
+        if (song.preview_url) {
+            art = song.artists[0].name;
+            son = song.name.replace('\\', '');
+            son = son.replace('"', '');
+            son = son.replace('\'', '');
+            if (art == "Daryl Hall and John Oates") {
+                art = "Hall and Oates";
+            }
+            allSongs.push({
+                artist: art,
+                song: son,
+                url: song.preview_url
+            });
+        }
+    });
+    return allSongs;
 }
 
 module.exports = {
@@ -113,8 +145,47 @@ module.exports = {
         });
     },
 
+    getPlaylistsForCategoryFromUserInput: function (category)
+    {
+        return spotifyApi.clientCredentialsGrant().then(function (data) 
+        {
+            return spotifyApi.getPlaylistsForCategory(category).then(function(data)
+            {
+                var catPlaylists = getPlaylists(data);
+                console.log(catPlaylists)
+            }).catch(function (err) {
+                console.log('Something went wrong!', err);
+            });
+        }).catch(function (err) {
+            console.log('Something went wrong!', err);
+        });
+    },  
+
+    getArtistsTopTracks: function (artist)
+    {
+        console.log(artist);
+        return spotifyApi.clientCredentialsGrant().then(function (data) 
+        {
+            return spotifyApi.searchArtists(artist).then(function(data)
+            {
+                var artId = data.body.artists.items[0].id;
+                return spotifyApi.getArtistTopTracks(artId, 'US').then(function(data)
+                {
+                    var tracks = getArtistsTopTracks(data);
+                    return tracks;
+                }).catch(function (err) {
+                    console.log('Something went wrong!', err);
+                });    
+            }).catch(function (err) {
+                console.log('Something went wrong!', err);
+            });
+        }).catch(function (err) {
+            console.log('Something went wrong!', err);
+        });
+    },  
+
     setToken: function (token) {
         spotifyApi.setAccessToken(token);
     }
 
-};
+}
