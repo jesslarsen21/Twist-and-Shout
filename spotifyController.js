@@ -73,6 +73,7 @@ function getPlaylists(data) {
         listName = listName.replace(',', '');
         listName = listName.replace('\-', ' ');
         listName = listName.replace('-', '');
+        listName = listname.replace('_',' ');
         listName = listName.replace('This Is: ', '');
         playlistId = playlist.id;
         playlistCreator = playlist.owner.id;
@@ -156,10 +157,10 @@ module.exports = {
                 console.log(thePlaylists);
                 return thePlaylists;
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('getFeaturedPlaylists went wrong!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
 
     },
@@ -172,10 +173,10 @@ module.exports = {
                 //console.log(songs);
                 return songs;
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('getPlaylistTracks went wrong!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
 
     },
@@ -189,13 +190,13 @@ module.exports = {
                     //console.log(playlists);
                     return playlists;
                 }).catch(function (err) {
-                    console.log('Somthing went wrong!', err);
+                    console.log('getUserPlaylists went wrong!', err);
                 });
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('getMe went wrong!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
     },
 
@@ -205,10 +206,10 @@ module.exports = {
                 var catPlaylists = getPlaylists(data);
                 // console.log(catPlaylists)
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('getPlaylistsForCategory went wrong!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
     },
 
@@ -222,13 +223,13 @@ module.exports = {
                     // console.log(tracks);
                     return tracks;
                 }).catch(function (err) {
-                    console.log('Something went wrong!', err);
+                    console.log('getArtistsTopTracks went wrong!', err);
                 });
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('searchArtists went wrong!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
     },
 
@@ -238,10 +239,10 @@ module.exports = {
             return spotifyApi.addToMySavedTracks([songId]).then(function (data) {
                 console.log(data);
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('addToMySavedTracks went wrong!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
     },
 
@@ -254,10 +255,10 @@ module.exports = {
                 var categorys = getCategoryList(data);
                 // console.log(categorys);
             }).catch(function (err) {
-                console.log('Something went wrong!', err);
+                console.log('Get categories error!', err);
             });
         }).catch(function (err) {
-            console.log('Something went wrong!', err);
+            console.log('Client credential grant error!', err);
         });
     },
     setToken: function (token) {
