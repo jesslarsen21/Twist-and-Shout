@@ -38,6 +38,7 @@ function getSongs(data) {
             art = art.replace('.', '');
             art = art.replace(',', '');
             son = song.track.name.replace('\\', '');
+            son = son.replace(' - Recorded at Spotify Studios NYC', '');            
             son = son.replace('"', '');
             son = son.replace('\'', '');
             if (art == "Daryl Hall and John Oates") {
@@ -93,6 +94,7 @@ function getArtistsTopTracks(data) {
         if (song.preview_url) {
             art = song.artists[0].name;
             son = song.name.replace('\\', '');
+            son = son.replace(' - Recorded at Spotify Studios NYC', '');
             son = son.replace('"', '');
             son = son.replace('\'', '');
             if (art == "Daryl Hall and John Oates") {
@@ -184,7 +186,7 @@ module.exports = {
                 var id = data.body.id;
                 return spotifyApi.getUserPlaylists(id).then(function (data) {
                     var playlists = getPlaylists(data);
-                    // console.log(playlists);
+                    //console.log(playlists);
                     return playlists;
                 }).catch(function (err) {
                     console.log('Somthing went wrong!', err);
@@ -210,14 +212,14 @@ module.exports = {
         });
     },
 
-    getArtistsTopTracks: function (artist) {
+    getArtistTopTracks: function (artist) {
         console.log(artist);
         return spotifyApi.clientCredentialsGrant().then(function (data) {
             return spotifyApi.searchArtists(artist).then(function (data) {
                 var artId = data.body.artists.items[0].id;
                 return spotifyApi.getArtistTopTracks(artId, 'US').then(function (data) {
                     var tracks = getArtistsTopTracks(data);
-                    console.log(tracks);
+                    // console.log(tracks);
                     return tracks;
                 }).catch(function (err) {
                     console.log('Something went wrong!', err);
