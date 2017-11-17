@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 var dbController = require('./DBController');
 var spController = require('./spotifyController');
 
-spController.setToken("BQC-NSHyDteRCmyc3GS2UBSzNYMzNq0Se7t0AQgoJ9P21GwXFstD3CnfciIAua3pZJb1GJaAq8PepGbsJ8hvIj9eTPK1sNX5P1RhhHxSFdmTduMwJdB-cnxkjviLiHj9Pcu0TMJK3uyDUYObGHPcSk4Ms4AepJnzLXs7DHm2RNxnvK_Zb9iVsWJVBdWOSRmdUNKK7QKTFwUqE_xXQ-jY2ooZedfTEfjN");
+spController.setToken("BQB0GO4e8C4AfVEyFnId0ZO-KYVo8DaZpcjc1n5oddFRsiS1C_2qBG4VsqLuL5eFzpkcytE7TDY4jrwp-O1bV_MGZjtZ7cVM3t1Y5NugXdMI6-ifbDwu9ikLNCCPcCB81On6iCp2ALVd9BGvucz3y-Yr9Exv");
 spController.getListOfCurrentUsersPlaylists();
 
 
