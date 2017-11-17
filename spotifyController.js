@@ -65,7 +65,7 @@ function getPlaylists(data) {
         listName = listName.replace('\'', '');
         listName = listName.replace('.', '');
         listName = listName.replace(',', '');
-        listName = listName.replace(' – ', ' ');
+        listName = listName.replace('\-', ' ');
         listName = listName.replace('-', '');
         listName = listName.replace('This Is: ', '');
         playlistId = playlist.id;
@@ -101,6 +101,22 @@ function getArtistsTopTracks(data) {
     return allSongs;
 }
 
+function getCategoryList(data)
+{
+    var cats = data.body.categories.items;
+    var allCats = [];
+
+    cats.forEach(function (cat)
+    {
+        cate = cat.name;
+        cate = cate.replace('\-', ' ');
+        cate = cate.replace('\/', ' ');
+        cate = cate.replace('\'', '');        
+        allCats.push({name: cate});
+    });
+    return allCats;
+}
+
 module.exports = {
     // Retrieve an access token
     getSongsFromRandomFeaturedPlaylist: function () {
@@ -108,8 +124,8 @@ module.exports = {
             return spotifyApi.getFeaturedPlaylists().then(function (data) {
                 var firstPage = data.body.playlists
                 id = '';
-                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[3].id).then(function(data){
-                //console.log(data);
+                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[2].id).then(function(data){
+                console.log(data);
                     var songs =  getSongs(data);
                     //console.log(songs);
                     return songs;
@@ -152,7 +168,7 @@ module.exports = {
             return spotifyApi.getPlaylistsForCategory(category).then(function(data)
             {
                 var catPlaylists = getPlaylists(data);
-                console.log(catPlaylists)
+                // console.log(catPlaylists)
             }).catch(function (err) {
                 console.log('Something went wrong!', err);
             });
@@ -172,6 +188,7 @@ module.exports = {
                 return spotifyApi.getArtistTopTracks(artId, 'US').then(function(data)
                 {
                     var tracks = getArtistsTopTracks(data);
+                    console.log(tracks);
                     return tracks;
                 }).catch(function (err) {
                     console.log('Something went wrong!', err);
@@ -182,8 +199,36 @@ module.exports = {
         }).catch(function (err) {
             console.log('Something went wrong!', err);
         });
-    },  
+    },
+    
+    addTrackToUserLibrary: function (songId) {
+        console.log(songId);
+        return spotifyApi.clientCredentialsGrant().then(function (data) {
+            return spotifyApi.addToMySavedTracks([songId]).then(function (data) {
+                console.log(data);
+            }).catch(function (err) {
+                console.log('Something went wrong!', err);
+            });
+        }).catch(function (err) {
+            console.log('Something went wrong!', err);
+        });
+    },
 
+    getListOfCategorys: function () {
+        return spotifyApi.clientCredentialsGrant().then(function (data) {
+            return spotifyApi.getCategories({
+                limit : 40,
+                country: 'US',
+            }).then(function (data) {
+                var categorys = getCategoryList(data);
+                // console.log(categorys);
+            }).catch(function (err) {
+                console.log('Something went wrong!', err);
+            });
+        }).catch(function (err) {
+            console.log('Something went wrong!', err);
+        });
+    },
     setToken: function (token) {
         spotifyApi.setAccessToken(token);
     }
