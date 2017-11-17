@@ -14,16 +14,16 @@ var SpotifyWebApi = require("spotify-web-api-node");
  * https://developer.spotify.com/spotify-web-api/authorization-guide/#client_credentials_flow
  */
 var spotifyApi = new SpotifyWebApi({
-    clientId : 'd340e4d2734740b9860e1b52e7a06376',
-    clientSecret : '805e13df0d6346f0af1e0f57b4aac2d3',
+    clientId: 'd340e4d2734740b9860e1b52e7a06376',
+    clientSecret: '805e13df0d6346f0af1e0f57b4aac2d3',
 });
 
 function getSongs(data) {
     var songs = data.body.tracks.items;
     var allSongs = [];
-    
-    songs.forEach(function(song) {
-        if (song.track.preview_url){
+
+    songs.forEach(function (song) {
+        if (song.track.preview_url) {
             art = song.track.artists[0].name.replace('\\', '');
             art = art.replace('"', '');
             art = art.replace('&', 'and');
@@ -33,12 +33,11 @@ function getSongs(data) {
             son = song.track.name.replace('\\', '');
             son = son.replace('"', '');
             son = son.replace('\'', '');
-            if (art == "Daryl Hall and John Oates")
-            {
+            if (art == "Daryl Hall and John Oates") {
                 art = "Hall and Oates";
             }
             allSongs.push({
-                artist:  art,
+                artist: art,
                 song: son,
                 url: song.track.preview_url
             });
@@ -48,40 +47,33 @@ function getSongs(data) {
 }
 
 function getPlaylists(data) {
-    var songs = data.body.tracks.items;
-    var allSongs = [];
-    
-    songs.forEach(function(song) {
-        if (song.track.preview_url){
-            art = song.track.artists[0].name.replace('\\', '');
-            art = art.replace('"', '');
-            art = art.replace('&', 'and');
-            art = art.replace('\'', '');
-            art = art.replace('.', '');
-            art = art.replace(',', '');
-            son = song.track.name.replace('\\', '');
-            son = son.replace('"', '');
-            son = son.replace('\'', '');
-            if (art == "Daryl Hall and John Oates")
+    var playlists = data.body.items;
+    var allPlaylists = [];
+
+    playlists.forEach(function (playlist) {
+        listName = playlist.name.replace('\\', '');
+        listName = listName.replace('"', '');
+        listName = listName.replace('&', 'and');
+        listName = listName.replace('\'', '');
+        listName = listName.replace('.', '');
+        listName = listName.replace(',', '');
+        listName = listName.replace(' – ', ' ');
+        listName = listName.replace('This Is: ', '');
+        playlistId = playlist.id;
+        allPlaylists.push(
             {
-                art = "Hall and Oates";
-            }
-            allSongs.push({
-                artist:  art,
-                song: son,
-                url: song.track.preview_url
+                playlist: listName,
+                id: playlistId
             });
-        }
     });
-    return allSongs;
+    return allPlaylists;
 }
 
 module.exports = {
     // Retrieve an access token
-    getSongsFromRandomFeaturedPlaylist: function()
-    {
-        return spotifyApi.clientCredentialsGrant().then(function(data) {
-            return spotifyApi.getFeaturedPlaylists().then(function(data) {
+    getSongsFromRandomFeaturedPlaylist: function () {
+        return spotifyApi.clientCredentialsGrant().then(function (data) {
+            return spotifyApi.getFeaturedPlaylists().then(function (data) {
                 var firstPage = data.body.playlists
                 id = '';
                 return spotifyApi.getPlaylist('spotify', data.body.playlists.items[3].id).then(function(data){
@@ -89,41 +81,40 @@ module.exports = {
                     var songs =  getSongs(data);
                     //console.log(songs);
                     return songs;
-                }).catch( function(err) {
+                }).catch(function (err) {
                     console.log('Somthing went wrong!', err);
                 });
 
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.log('Something went wrong!', err);
             });
-        }).catch( function(err) {
+        }).catch(function (err) {
             console.log('Something went wrong!', err);
         });
-        
+
     },
     // Gets a list of the users playlists.
-    getListOfCurrentUsersPlaylists : function()
-    {
-        return spotifyApi.clientCredentialsGrant().then(function(data) {
-            return spotifyApi.getMe().then(function(data) {
+    getListOfCurrentUsersPlaylists: function () {
+        return spotifyApi.clientCredentialsGrant().then(function (data) {
+            return spotifyApi.getMe().then(function (data) {
                 var id = data.body.id;
-                return spotifyApi.getUserPlaylists(id).then(function(data){
-                        console.log(data.body.items);
-                        
-                    }).catch( function(err) {
-                        console.log('Somthing went wrong!', err);
-                    });
-            }).catch(function(err) {
+                return spotifyApi.getUserPlaylists(id).then(function (data) {
+                    var playlists = getPlaylists(data);
+                    // console.log(playlists);
+                    return playlists;
+                }).catch(function (err) {
+                    console.log('Somthing went wrong!', err);
+                });
+            }).catch(function (err) {
                 console.log('Something went wrong!', err);
             });
-        }).catch( function(err) {
+        }).catch(function (err) {
             console.log('Something went wrong!', err);
         });
-        
     },
 
     setToken: function (token) {
         spotifyApi.setAccessToken(token);
     }
 
-  };
+};
