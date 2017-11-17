@@ -108,9 +108,9 @@ module.exports = {
             return spotifyApi.getFeaturedPlaylists().then(function (data) {
                 var firstPage = data.body.playlists
                 id = '';
-                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[2].id).then(function (data) {
-                    //console.log(data);
-                    var songs = getSongs(data);
+                return spotifyApi.getPlaylist('spotify', data.body.playlists.items[3].id).then(function(data){
+                //console.log(data);
+                    var songs =  getSongs(data);
                     //console.log(songs);
                     return songs;
                 }).catch(function (err) {

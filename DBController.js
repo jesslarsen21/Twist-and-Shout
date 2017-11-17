@@ -9,24 +9,6 @@ docClient = new AWS.DynamoDB.DocumentClient({
     secretAccessKey: secretAccessKey,
 })
 
-function newUser(id){
-    var params = {
-        TableName : "Playlist",
-        Item: {
-            'UserID': id,
-            'Score': 0,
-            'CurrentArtist': null
-        }
-    };
-    return docClient.put(params, function(err, data) {
-        if (err) {
-        console.log("Error", err);
-        } else {
-            console.log("Query succeeded.");
-        }
-    });
-}
-
 module.exports = {
     GetPlaylist : function(user){
         var songs = [];
@@ -102,23 +84,24 @@ module.exports = {
             }
         });  
     },
-
-
-
-    updateScore : function(id, score){
+    updateScore : function(id, playerName,score){
         var params = {
             TableName: 'Users',
             Key: { UserID : id },
-            UpdateExpression: 'set #a = :x',
-            ExpressionAttributeNames: {'#a' : 'Score'},
+            UpdateExpression: 'SET #Scores.#player = :score',            
+            ExpressionAttributeNames: {
+                '#Scores' : 'Scores',
+                '#player' : playerName
+            },
             ExpressionAttributeValues: {
-            ':x' : score,
+            ':score' : score
             }
         };
         return docClient.update(params, function(err, data) {
             if (err) console.log(err);
             else console.log("Query succeeded.");
-        });
+        });     
+
     },
 
 
@@ -164,7 +147,7 @@ module.exports = {
                         TableName : "Users",
                         Item: {
                             'UserID': user,
-                            'Score': 0,
+                            'Scores': {},
                             'CurrentArtist': null
                         }
                     };

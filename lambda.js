@@ -61,6 +61,7 @@ const handlers = {
         },
     'CreateGame': function () {
         var intentObj = this.event.request.intent;
+        var id = this.event.session.user.userId
         if(!this.event.session.user.accessToken && !intentObj.slots.LinkedAccount.value)
         {
             this.emit(":elicitSlot", "LinkedAccount", "Would you like to link your spotify account, to play with your own playlists?", "Would you like to link your spotify account, to play with your own playlists?");            
@@ -72,12 +73,41 @@ const handlers = {
             else{
                 // prompt for ask me never option 
             }
-        } else if (!intentObj.slots.PlayerName.value) {
-            this.emit(":elicitSlot", "PlayerName", "Who's playing?", "Who's playing?");
-        } else {
-            console.log(intentObj.slots.PlayerName.value);
-            this.emit("StartGame");
+        } else if (!intentObj.slots.PlayerName.value ){
+
+            var p2 = dbController.GetUser(id).promise().then(function(data) {
+                this.emit(":elicitSlot", "PlayerName", "Who's playing?", "Who's playing?");                
+            }.bind(this)).catch(function(err) {
+                console.log('Something went wrong!', err);
+            });
         }
+        else if (intentObj.slots.HasAnotherPlayer.value && intentObj.slots.HasAnotherPlayer.value != "defaultValue") {
+            if(intentObj.slots.HasAnotherPlayer.value.toUpperCase() == "YES")
+            {
+                var updatedIntent = this.event.request.intent;
+                updatedIntent.slots.PlayerName.value = "defaultValue";
+                updatedIntent.slots.HasAnotherPlayer.value = "defaultValue";
+                this.emit(":elicitSlot", "PlayerName", "Whats their name?", "reprompt me again daddy", updatedIntent);                
+            }
+            else{
+                this.emit("PickPlaylist");
+            }
+        }
+        else if (intentObj.slots.PlayerName.value && intentObj.slots.PlayerName.value != "defaultValue") {
+            
+            var p1 = dbController.updateScore(id,intentObj.slots.PlayerName.value, 0).promise().then(function(data) {
+                this.emit(":elicitSlot", "HasAnotherPlayer", "Is anyone else playing?", "Is anyone else playing?");                
+                
+            }.bind(this)).catch(function(err) {
+                console.log('Something went wrong!', err);
+            });
+        } 
+        else {
+            console.log(intentObj.slots.PlayerName.values);
+        }
+    },
+    'PickPlaylist': function(){
+        this.emit(':tell', 'Pick Playlist.');
     },
     'NewSong': function () {
         var id = this.event.session.user.userId
@@ -138,7 +168,7 @@ const handlers = {
         this.emit(':tell', this.t('STOP_MESSAGE'));
     },
     'Unhandled': function () {
-        this.emit(':ask', this.t('HELP_MESSAGE'), this.t('HELP_MESSAGE'));
+        this.emit(':tell', "Error");
     },
 };
 
