@@ -96,6 +96,13 @@ function getArtistsTopTracks(data) {
     songs.forEach(function (song) {
         if (song.preview_url) {
             art = song.artists[0].name;
+            art = art.replace('"', '');
+            art = art.replace('&', 'and');
+            art = art.replace('\'', '');
+            art = art.replace('.', '');
+            art = art.replace(',', '');
+            art = art.replace('+', ' and ');
+            art = art.replace('  ', ' ');
             son = song.name.replace('\\', '');
             son = son.replace(' - Recorded at Spotify Studios NYC', '');
             son = son.replace('"', '');
