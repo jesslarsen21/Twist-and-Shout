@@ -37,6 +37,8 @@ function getSongs(data) {
             art = art.replace('\'', '');
             art = art.replace('.', '');
             art = art.replace(',', '');
+            art = art.replace('+', ' and ');
+            art = art.replace('  ', ' ');
             son = song.track.name.replace('\\', '');
             son = son.replace(' - Recorded at Spotify Studios NYC', '');            
             son = son.replace('"', '');
