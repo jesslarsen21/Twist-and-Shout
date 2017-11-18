@@ -23,7 +23,7 @@ function getSongs(data) {
     if (data.body.tracks) {
         songs = data.body.tracks.items
     }
-    else 
+    else
     {
         songs = data.body.items;
     }
@@ -40,7 +40,7 @@ function getSongs(data) {
             art = art.replace('+', ' and ');
             art = art.replace('  ', ' ');
             son = song.track.name.replace('\\', '');
-            son = son.replace(' - Recorded at Spotify Studios NYC', '');            
+            son = son.replace(' - Recorded at Spotify Studios NYC', '');
             son = son.replace('"', '');
             son = son.replace('\'', '');
             if (art == "Daryl Hall and John Oates") {
@@ -144,7 +144,7 @@ module.exports = {
 
                 var thePlaylists = [];
                 for(var i = 0; i <= numOfPlaylist; i++)
-                {       
+                {
                     listName = firstPage[i].name.replace('\\', '');
                     listName = listName.replace('"', '');
                     listName = listName.replace('&', 'and');
@@ -155,7 +155,7 @@ module.exports = {
                     listName = listName.replace('-', '');
                     listName = listName.replace('This Is: ', '');
                     playlistId = firstPage[i].id;
-                    crea = firstPage[i].owner.id;             
+                    crea = firstPage[i].owner.id;
                     thePlaylists.push(
                         {
                             name: listName,
@@ -223,13 +223,14 @@ module.exports = {
     },
 
     getArtistTopTracks: function (artist) {
-        console.log(artist);
+        //console.log(artist);
         return spotifyApi.clientCredentialsGrant().then(function (data) {
             return spotifyApi.searchArtists(artist).then(function (data) {
                 var artId = data.body.artists.items[0].id;
+                console.log(data.body.artists.items);
                 return spotifyApi.getArtistTopTracks(artId, 'US').then(function (data) {
                     var tracks = getArtistsTopTracks(data);
-                    // console.log(tracks);
+                    //console.log(tracks);
                     return tracks;
                 }).catch(function (err) {
                     console.log('getArtistsTopTracks went wrong!', err);
@@ -265,6 +266,30 @@ module.exports = {
                 // console.log(categorys);
             }).catch(function (err) {
                 console.log('Get categories error!', err);
+            });
+        }).catch(function (err) {
+            console.log('Client credential grant error!', err);
+        });
+    },
+
+    checkPremiumStatus: function()
+    {
+        return spotifyApi.clientCredentialsGrant().then(function (data)
+        {
+            return spotifyApi.getMe().then(function (data)
+            {
+                var prem = data.body.product;
+                // console.log(prem);
+                if(prem == 'premium')
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }).catch(function (err) {
+                console.log('getMe went wrong!', err);
             });
         }).catch(function (err) {
             console.log('Client credential grant error!', err);
